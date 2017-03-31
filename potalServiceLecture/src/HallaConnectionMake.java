@@ -9,7 +9,7 @@ public class HallaConnectionMake implements ConnectionMaker {
     @Override
     public Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.jdbc.Driver");
-        return DriverManager.getConnection("jdbc:mysql://113.198.160.128/test?characterEncoding=utf-8", "root", "as0109247");
+        return DriverManager.getConnection("jdbc:mysql://113.198.165.184/test?characterEncoding=utf-8", "root", "as0109247");
 
     }
 }

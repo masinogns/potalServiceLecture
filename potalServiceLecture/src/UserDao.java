@@ -14,51 +14,191 @@ public class UserDao {
     }
     public User get(Long id) throws ClassNotFoundException, SQLException {
 
-        Connection connection = connectionMaker.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        User user = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from user where id = ?");
-        preparedStatement.setLong(1,id);
+        try {
+            connection = connectionMaker.getConnection();
 
-        ResultSet resultSet = preparedStatement.executeQuery();
+            StatementStragy statementStragy = new GetUserStatementStragy();
+            preparedStatement = statementStragy.makeStatement(id, connection);
+//            preparedStatement = connection.prepareStatement("SELECT * from user where id = ?");
+//            preparedStatement.setLong(1,id);
 
-        resultSet.next();
-        User user = new User();
-        user.setId(resultSet.getLong("id"));
-        user.setName(resultSet.getString("name"));
-        user.setPassword(resultSet.getString("password"));
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                user = new User();
+                user.setId(resultSet.getLong("id"));
+                user.setName(resultSet.getString("name"));
+                user.setPassword(resultSet.getString("password"));
+            }
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+            throw e;
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
 
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+        }
+
+
+
 
         return user;
     }
 
     public Long add(User user) throws ClassNotFoundException, SQLException {
+        Connection connection =null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Long id = null;
 
+        try {
+            connection = connectionMaker.getConnection();
 
-        Connection connection = connectionMaker.getConnection();
+            StatementStragy statementStragy = new AddUserStatementStragy();
+            preparedStatement = statementStragy.makeStatement(user, connection);
+//            preparedStatement = connection.prepareStatement("INSERT into user(name, password) VALUES (?,?)");
+//            preparedStatement.setString(1, user.getName());
+//            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.executeUpdate();
 
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT into user(name, password) VALUES (?,?)");
-        preparedStatement.setString(1, user.getName());
-        preparedStatement.setString(2, user.getPassword());
-        preparedStatement.executeUpdate();
+            preparedStatement = connection.prepareStatement("SELECT last_insert_id()");
 
-        preparedStatement = connection.prepareStatement("SELECT last_insert_id()");
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
 
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
+            id = resultSet.getLong(1);
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+            throw e;
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
 
-        Long id = resultSet.getLong(1);
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+        }
 
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
 
 
         return id;
     }
 
+    public void update(User user) throws ClassNotFoundException, SQLException {
+
+        Connection connection =null;
+        PreparedStatement preparedStatement = null;
+
+
+        try {
+            connection = connectionMaker.getConnection();
+
+            StatementStragy statementStragy = new UpdateUserStatementStragy();
+            preparedStatement = statementStragy.makeStatement(user, connection);
+//            preparedStatement = connection.prepareStatement("update user set name = ?, password = ? where id = ?");
+//            preparedStatement.setString(1, user.getName());
+//            preparedStatement.setString(2, user.getPassword());
+//            preparedStatement.setLong(3,user.getId());
+            preparedStatement.executeUpdate();
+
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+            throw e;
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+        }
+    }
+
+    public void delete(Long id) throws ClassNotFoundException, SQLException {
+
+        Connection connection =null;
+        PreparedStatement preparedStatement = null;
+
+
+        try {
+
+            connection = connectionMaker.getConnection();
+
+            StatementStragy statementStragy = new DeleteUserStatementStragy();
+            preparedStatement = statementStragy.makeStatement(id, connection);
+//            preparedStatement = connection.prepareStatement("delete from user where id = ?");
+//            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+            throw e;
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+        }
+    }
 
 
 //    public Connection getConnection() throws ClassNotFoundException, SQLException {
