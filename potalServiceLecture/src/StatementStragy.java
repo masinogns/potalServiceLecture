@@ -6,5 +6,5 @@ import java.sql.SQLException;
  * Created by masinogns on 2017. 3. 31..
  */
 public interface StatementStragy {
-    PreparedStatement makeStatement(Object object, Connection connection) throws SQLException;
+    PreparedStatement makeStatement(Connection connection) throws SQLException;
 }
