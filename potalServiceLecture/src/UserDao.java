@@ -1,5 +1,9 @@
 
-import javax.sql.DataSource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+
 import java.sql.*;
 
 import static java.lang.Class.forName;
@@ -9,20 +13,42 @@ import static java.lang.Class.forName;
  */
 
 public class UserDao {
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
     public User get(Long id) throws ClassNotFoundException, SQLException {
         String sql = "SELECT * from user where id = ?";
         Object[] params = new Object[]{id};
-        return jdbcContext.queryForObject(id, sql);
+
+
+        User user1 = null;
+        try {
+            user1 = jdbcTemplate.queryForObject(sql, params, (resultSet, i) -> {
+                User user = new User();
+                user.setId(resultSet.getLong("id"));
+                user.setName(resultSet.getString("name"));
+                user.setPassword(resultSet.getString("password"));
+                return user;
+            });
+
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
+        return user1;
     }
 
     public Long add(User user) throws ClassNotFoundException, SQLException {
         String sql = "INSERT into user(name, password) VALUES (?,?)";
-        Object[] params = new Object[]{user.getName(), user.getPassword()};
+//        Object[] params = new Object[]{user.getName(), user.getPassword()};
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getPassword());
+            return preparedStatement;
 
+        }, keyHolder);
 
-        return jdbcContext.insert(sql, params);
+        return (Long) keyHolder.getKey();
     }
 
     public void update(User user) throws ClassNotFoundException, SQLException {
@@ -30,7 +56,7 @@ public class UserDao {
         Object[] params = new Object[]{user.getName(),user.getPassword(), user.getId()};
 
 
-        jdbcContext.update(sql, params);
+        jdbcTemplate.update(sql, params);
     }
 
 
@@ -38,12 +64,11 @@ public class UserDao {
         String sql = "delete from user where id = ?";
         Object[] params = new Object[] {id};
 
-        jdbcContext.update(sql, params);
+        jdbcTemplate.update(sql, params);
     }
 
 
-    public void setJdbcContext(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
-
 }
