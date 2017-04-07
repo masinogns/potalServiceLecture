@@ -134,6 +134,44 @@ public class JdbcContext {
     public void setDataSource(org.springframework.jdbc.datasource.SimpleDriverDataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+
+    public User queryForObject(Long id, String sql) throws SQLException {
+        StatementStragy statementStragy = connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1,id);
+
+            return preparedStatement;
+        };
+
+
+        return jdbcContextWithStatementStrategyForGet(statementStragy);
+    }
+
+    public Long insert(String sql, Object[] params) throws SQLException {
+        StatementStragy statementStragy = connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for(int i =1; i<=params.length;i++){
+                preparedStatement.setObject(i, params[i-1]);
+            }
+            return preparedStatement;
+        };
+
+        return jdbcContextWithStatementStrategyForInsert(statementStragy);
+    }
+
+    public void update(String sql, Object[] params) throws SQLException {
+        StatementStragy statementStragy = connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for(int i = 1; i<=params.length; i++){
+                preparedStatement.setObject(i, params[i-1]);
+            }
+            return preparedStatement;
+        };
+
+        jdbcContextWithStatementStrategyForUpdate(statementStragy);
+    }
+
 }
 
 

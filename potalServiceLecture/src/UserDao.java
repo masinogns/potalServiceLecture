@@ -12,51 +12,35 @@ public class UserDao {
     private JdbcContext jdbcContext;
 
     public User get(Long id) throws ClassNotFoundException, SQLException {
-//        StatementStragy statementStragy = new GetUserStatementStragy(id);
-        StatementStragy statementStragy = connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from user where id = ?");
-            preparedStatement.setLong(1,id);
-
-            return preparedStatement;
-        };
-
-
-        return jdbcContext.jdbcContextWithStatementStrategyForGet(statementStragy);
+        String sql = "SELECT * from user where id = ?";
+        Object[] params = new Object[]{id};
+        return jdbcContext.queryForObject(id, sql);
     }
 
     public Long add(User user) throws ClassNotFoundException, SQLException {
-        StatementStragy statementStragy = connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT into user(name, password) VALUES (?,?)");
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getPassword());
+        String sql = "INSERT into user(name, password) VALUES (?,?)";
+        Object[] params = new Object[]{user.getName(), user.getPassword()};
 
-            return preparedStatement;
-        };
 
-        return jdbcContext.jdbcContextWithStatementStrategyForInsert(statementStragy);
+        return jdbcContext.insert(sql, params);
     }
 
     public void update(User user) throws ClassNotFoundException, SQLException {
-        StatementStragy statementStragy = connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("update user set name = ?, password = ? where id = ?");
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getPassword());
-            preparedStatement.setLong(3,user.getId());
+        String sql = "update user set name = ?, password = ? where id = ?";
+        Object[] params = new Object[]{user.getName(),user.getPassword(), user.getId()};
 
-            return preparedStatement;
-        };
 
-        jdbcContext.jdbcContextWithStatementStrategyForUpdate(statementStragy);
+        jdbcContext.update(sql, params);
     }
+
 
     public void delete(Long id) throws ClassNotFoundException, SQLException {
-        StatementStragy statementStragy = connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from user where id = ?");
-            preparedStatement.setLong(1, id);
-            return preparedStatement;
-        };
-        jdbcContext.jdbcContextWithStatementStrategyForUpdate(statementStragy);
+        String sql = "delete from user where id = ?";
+        Object[] params = new Object[] {id};
+
+        jdbcContext.update(sql, params);
     }
+
 
     public void setJdbcContext(JdbcContext jdbcContext) {
         this.jdbcContext = jdbcContext;
