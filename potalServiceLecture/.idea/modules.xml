@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/potalServiceLecture.iml" filepath="$PROJECT_DIR$/potalServiceLecture.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/potalServiceLecture.iml" filepath="$PROJECT_DIR$/.idea/modules/potalServiceLecture.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/potalServiceLecture_main.iml" filepath="$PROJECT_DIR$/.idea/modules/potalServiceLecture_main.iml" group="potalServiceLecture" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/potalServiceLecture_test.iml" filepath="$PROJECT_DIR$/.idea/modules/potalServiceLecture_test.iml" group="potalServiceLecture" />
     </modules>
   </component>
 </project>
